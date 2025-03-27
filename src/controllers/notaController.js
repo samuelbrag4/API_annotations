@@ -11,32 +11,94 @@ class NotaController {
   };
 
   create = async (req, res) => {
-    const { descricao } = req.body;
+    const { titulo, conteudo, cor, favorita } = req.body;
     try {
-      if (!descricao) {
-        return res.status(400).json({ erro: "Descrição é obrigatória" });
+      if (!titulo || !conteudo || !cor || favorita === undefined) {
+        return res
+          .status(400)
+          .json({
+            erro: "Os campos 'titulo', 'conteudo', 'cor' e 'favorita' são obrigatórios.",
+          });
       }
-      const novaNota = await notaModel.create(descricao);
+
+      if (typeof titulo !== "string") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'titulo' deve ser uma string." });
+      }
+
+      if (typeof conteudo !== "string") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'conteudo' deve ser uma string." });
+      }
+
+      if (typeof cor !== "string") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'cor' deve ser uma string." });
+      }
+
+      if (typeof favorita !== "boolean") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'favorita' deve ser um booleano." });
+      }
+
+      const novaNota = await notaModel.create(titulo, conteudo, cor, favorita);
       res.status(201).json(novaNota);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ erro: "Erro ao criar a nota" });
+      return res.status(500).json({ erro: "Erro ao Criar a Nota" });
     }
   };
 
   update = async (req, res) => {
     const { id } = req.params;
-    const { concluida, descricao } = req.body;
+    const { titulo, conteudo, cor, favorita } = req.body;
 
     try {
-      const notaAtualizada = await notaModel.update(Number(id), concluida, descricao);
+      const notaAtualizada = await notaModel.update(
+        Number(id),
+        titulo,
+        conteudo,
+        cor,
+        favorita
+      );
 
-      if(!notaAtualizada) {
-        return res.status(404).json({ erro: "Não achei a nota não man..." });
-      } 
+      if (!titulo && !conteudo && !cor && favorita === undefined) {
+        return res
+          .status(400)
+          .json({
+            erro: "Pelo menos um dos campos 'titulo', 'conteudo', 'cor' ou 'favorita' deve ser enviado para atualização.",
+          });
+      }
 
-      res.json(notaAtualizada)
+      if (titulo && typeof titulo !== "string") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'titulo' deve ser uma string." });
+      }
 
+      if (conteudo && typeof conteudo !== "string") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'conteudo' deve ser uma string." });
+      }
+
+      if (cor && typeof cor !== "string") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'cor' deve ser uma string." });
+      }
+
+      if (favorita !== undefined && typeof favorita !== "boolean") {
+        return res
+          .status(400)
+          .json({ erro: "O campo 'favorita' deve ser um booleano." });
+      }
+
+      res.json(notaAtualizada);
     } catch (error) {
       console.error(error);
       res.status(500).json({ erro: "Filhote, não deu pra atualizar." });
@@ -53,11 +115,12 @@ class NotaController {
         return res.status(404).json({ erro: "A nota vacilou com você" });
       }
 
-      res.status(200).send({ message: "A nota foi pro vasco!!!"});
-
+      res.status(200).send({ message: "A nota foi pro vasco!!!" });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "CHORA FI, CHORA MSM PQ A nota N FOI EXCLUIDA" });
+      res
+        .status(500)
+        .json({ error: "CHORA FI, CHORA MSM PQ A nota N FOI EXCLUIDA" });
     }
   };
 }
