@@ -14,11 +14,9 @@ class NotaController {
     const { titulo, conteudo, cor, favorita } = req.body;
     try {
       if (!titulo || !conteudo || !cor || favorita === undefined) {
-        return res
-          .status(400)
-          .json({
-            erro: "Os campos 'titulo', 'conteudo', 'cor' e 'favorita' são obrigatórios.",
-          });
+        return res.status(400).json({
+          erro: "Os campos 'titulo', 'conteudo', 'cor' e 'favorita' são obrigatórios.",
+        });
       }
 
       if (typeof titulo !== "string") {
@@ -53,6 +51,32 @@ class NotaController {
     }
   };
 
+  searchByTerm = async (req, res) => {
+    const { term } = req.params;
+
+    if (!term || term.trim() === "") {
+      return res
+        .status(400)
+        .json({ erro: "O termo de busca não pode estar vazio." });
+    }
+
+    try {
+      const notas = await prisma.nota.findMany({
+        where: {
+          OR: [
+            { titulo: { contains: term, mode: "insensitive" } },
+            { conteudo: { contains: term, mode: "insensitive" } },
+          ],
+        },
+      });
+
+      res.json(notas);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ erro: "Erro ao buscar as anotações." });
+    }
+  };
+
   update = async (req, res) => {
     const { id } = req.params;
     const { titulo, conteudo, cor, favorita } = req.body;
@@ -67,11 +91,9 @@ class NotaController {
       );
 
       if (!titulo && !conteudo && !cor && favorita === undefined) {
-        return res
-          .status(400)
-          .json({
-            erro: "Pelo menos um dos campos 'titulo', 'conteudo', 'cor' ou 'favorita' deve ser enviado para atualização.",
-          });
+        return res.status(400).json({
+          erro: "Pelo menos um dos campos 'titulo', 'conteudo', 'cor' ou 'favorita' deve ser enviado para atualização.",
+        });
       }
 
       if (titulo && typeof titulo !== "string") {
