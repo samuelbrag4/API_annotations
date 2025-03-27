@@ -3,18 +3,23 @@ import notaController from "../controllers/notaController.js";
 
 class NotaModel {
   getAll = async () => {
-    return await prisma.task.findMany();
+    return await prisma.nota.findMany();
   };
 
-  create = async (descricao) => {
-    return await prisma.task.create({ 
-      data: { descricao } 
+  create = async (titulo, conteudo, cor, favorita) => {
+    return await prisma.nota.create({
+      data: {
+        titulo,
+        conteudo,
+        cor,
+        favorita,
+      },
     });
   };
 
   update = async (id, concluida, descricao) => {
     try {
-      const nota = await prisma.task.update({
+      const nota = await prisma.nota.update({
         where: { id },
         data: {
           concluida: concluida !== undefined ? concluida : true,
@@ -31,7 +36,7 @@ class NotaModel {
 
   delete = async (id) => {
     try {
-      const notaDeletada = await prisma.task.delete({
+      const notaDeletada = await prisma.nota.delete({
         where: { id },
       });
 

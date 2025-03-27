@@ -12,42 +12,35 @@ class NotaController {
 
   create = async (req, res) => {
     const { titulo, conteudo, cor, favorita } = req.body;
+  
     try {
       if (!titulo || !conteudo || !cor || favorita === undefined) {
         return res.status(400).json({
           erro: "Os campos 'titulo', 'conteudo', 'cor' e 'favorita' são obrigatórios.",
         });
       }
-
+  
       if (typeof titulo !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'titulo' deve ser uma string." });
+        return res.status(400).json({ erro: "O campo 'titulo' deve ser uma string." });
       }
-
+  
       if (typeof conteudo !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'conteudo' deve ser uma string." });
+        return res.status(400).json({ erro: "O campo 'conteudo' deve ser uma string." });
       }
-
+  
       if (typeof cor !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'cor' deve ser uma string." });
+        return res.status(400).json({ erro: "O campo 'cor' deve ser uma string." });
       }
-
+  
       if (typeof favorita !== "boolean") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'favorita' deve ser um booleano." });
+        return res.status(400).json({ erro: "O campo 'favorita' deve ser um booleano." });
       }
-
+  
       const novaNota = await notaModel.create(titulo, conteudo, cor, favorita);
       res.status(201).json(novaNota);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ erro: "Erro ao Criar a Nota" });
+      res.status(500).json({ erro: "Erro ao criar a nota." });
     }
   };
 
