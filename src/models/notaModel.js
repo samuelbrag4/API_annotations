@@ -2,14 +2,17 @@ import prisma from "../../prisma/client.js";
 import notaController from "../controllers/notaController.js";
 
 class NotaModel {
+  
+  // PEGAR TODAS
   getAll = async () => {
     const notas = await prisma.nota.findMany();
     return notas.map(nota => ({
       ...nota,
-      tags: nota.tags ? nota.tags.split(",") : [], // Converte a string de volta para um array
+      tags: nota.tags ? nota.tags.split(",") : [], 
     }));
   };
 
+  // PEGAR PELO ID
   getById = async (id) => {
     const nota = await prisma.nota.findUnique({
       where: { id },
@@ -17,6 +20,7 @@ class NotaModel {
     return nota ? { ...nota, tags: nota.tags ? nota.tags.split(",") : [] } : null;
   };
 
+  // CRIAR NOVA
   create = async (titulo, conteudo, cor, favorita, tags) => {
     try {
       console.log("Dados recebidos no model:", { titulo, conteudo, cor, favorita, tags });
@@ -26,7 +30,7 @@ class NotaModel {
           conteudo,
           cor,
           favorita,
-          tags: tags ? tags.join(",") : null, // Converte o array em uma string separada por vírgulas
+          tags: tags ? tags.join(",") : null,
         },
       });
       return nota;
@@ -36,6 +40,7 @@ class NotaModel {
     }
   };
 
+  // PROCURAR POR TERMO
   searchByTerm = async (term) => {
     try {
       console.log("Termo recebido no model:", term);
@@ -67,6 +72,7 @@ class NotaModel {
     }
   };
 
+  // ATUALIZAR
   update = async (id, data) => {
     try {
       const notaAtualizada = await prisma.nota.update({
@@ -81,6 +87,7 @@ class NotaModel {
     }
   };
 
+  // REMOVER
   delete = async (id) => {
     try {
       const notaDeletada = await prisma.nota.delete({
@@ -94,4 +101,5 @@ class NotaModel {
     }
   };
 }
+
 export default new NotaModel();

@@ -1,5 +1,7 @@
 import notaModel from "../models/notaModel.js";
 class NotaController {
+
+  // BUSCAR TODOS
   getAll = async (req, res) => {
     try {
       const notas = await notaModel.getAll();
@@ -10,6 +12,7 @@ class NotaController {
     }
   };
 
+  // BUSCAR TODOS PELO ID
   getById = async (req, res) => {
     const { id } = req.params;
 
@@ -33,18 +36,17 @@ class NotaController {
     }
   };
 
+  // CRIAR NOVA TAREFA
   create = async (req, res) => {
     const { titulo, conteudo, cor, favorita, tags } = req.body;
   
     try {
-      // Validação dos campos obrigatórios
       if (!titulo || !conteudo || !cor || favorita === undefined) {
         return res.status(400).json({
           erro: "Os campos 'titulo', 'conteudo', 'cor' e 'favorita' são obrigatórios.",
         });
       }
   
-      // Validação de tipos
       if (typeof titulo !== "string") {
         return res.status(400).json({ erro: "O campo 'titulo' deve ser uma string." });
       }
@@ -65,7 +67,6 @@ class NotaController {
         return res.status(400).json({ erro: "O campo 'tags' deve ser um array de strings." });
       }
   
-      // Criação da nota
       const novaNota = await notaModel.create(titulo, conteudo, cor, favorita, tags);
       res.status(201).json(novaNota);
     } catch (error) {
@@ -74,11 +75,11 @@ class NotaController {
     }
   };
 
+  // PROCURAR POR TERMO
   searchByTerm = async (req, res) => {
     const { term } = req.params;
 
-    console.log("Termo recebido:", term); // Adicione este log para depuração
-
+    console.log("Termo recebido:", term); 
     if (!term || term.trim() === "") {
       return res
         .status(400)
@@ -94,26 +95,24 @@ class NotaController {
     }
   };
 
+  // ATUALIZAR TAREFA
   update = async (req, res) => {
     const { id } = req.params;
     const { titulo, conteudo, cor, favorita } = req.body;
 
     try {
-      // Valida se o ID é um número
       if (isNaN(Number(id))) {
         return res
           .status(400)
           .json({ erro: "O ID deve ser um número válido." });
       }
 
-      // Cria o objeto de atualização com os campos fornecidos
       const data = {};
       if (titulo !== undefined) data.titulo = titulo;
       if (conteudo !== undefined) data.conteudo = conteudo;
       if (cor !== undefined) data.cor = cor;
       if (favorita !== undefined) data.favorita = favorita;
 
-      // Atualiza a nota
       const notaAtualizada = await notaModel.update(Number(id), data);
 
       if (!notaAtualizada) {
@@ -127,6 +126,7 @@ class NotaController {
     }
   };
 
+  // REMOVER TAREFA
   delete = async (req, res) => {
     const { id } = req.params;
 
@@ -146,16 +146,15 @@ class NotaController {
     }
   };
 
+  // MARCAR COMO FAVORITA
   markAsFavorite = async (req, res) => {
     const { id } = req.params;
   
     try {
-      // Valida se o ID é um número
       if (isNaN(Number(id))) {
         return res.status(400).json({ erro: "O ID deve ser um número válido." });
       }
   
-      // Atualiza o campo 'favorita' para true
       const notaAtualizada = await notaModel.update(Number(id), { favorita: true });
   
       if (!notaAtualizada) {

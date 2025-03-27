@@ -13,7 +13,7 @@ model Nota {
   conteudo      String
   favorita      Boolean   @default(false)
   tags          String?
-  cor           String?   // Para permitir personalização
+  cor           String?   
   criadaEm      DateTime  @default(now())
   atualizadaEm  DateTime  @updatedAt
 
