@@ -9,6 +9,6 @@ router.post("/", notaController.create);
 router.get("/search/:term", notaController.searchByTerm);
 router.put("/:id", notaController.update);
 router.delete("/:id", notaController.delete);
-// router.patch("/:id/favorite", notaController.markAsFavorite); 
+router.patch("/:id/favorite", notaController.markAsFavorite); 
 
 export default router;

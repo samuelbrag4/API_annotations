@@ -146,6 +146,29 @@ class NotaController {
         .json({ error: "CHORA FI, CHORA MSM PQ A nota N FOI EXCLUIDA" });
     }
   };
+
+  markAsFavorite = async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      // Valida se o ID é um número
+      if (isNaN(Number(id))) {
+        return res.status(400).json({ erro: "O ID deve ser um número válido." });
+      }
+  
+      // Atualiza o campo 'favorita' para true
+      const notaAtualizada = await notaModel.update(Number(id), { favorita: true });
+  
+      if (!notaAtualizada) {
+        return res.status(404).json({ erro: "Nota não encontrada." });
+      }
+  
+      res.json(notaAtualizada);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ erro: "Erro ao marcar a nota como favorita." });
+    }
+  };
 }
 
 export default new NotaController();
