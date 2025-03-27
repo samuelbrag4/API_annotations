@@ -1,5 +1,5 @@
 import prisma  from "../../prisma/client.js";
-import tarefaController from "../controllers/tarefaController.js";
+import tarefaController from "../controllers/notaController.js";
 
 class TarefaModel {
   getAll = async () => {
