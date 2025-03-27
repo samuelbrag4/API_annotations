@@ -26,14 +26,30 @@ class NotaModel {
   searchByTerm = async (term) => {
     try {
       console.log("Termo recebido no model:", term);
-      const notas = await prisma.nota.findMany({
+  
+      // Converte o termo para minúsculas
+      const lowerCaseTerm = term.toLowerCase();
+  
+      // Busca no campo 'titulo'
+      const notasTitulo = await prisma.nota.findMany({
         where: {
-          OR: [
-            { titulo: { contains: term, mode: "insensitive" } },
-            { conteudo: { contains: term, mode: "insensitive" } },
-          ],
+          titulo: { contains: lowerCaseTerm },
         },
       });
+  
+      // Busca no campo 'conteudo'
+      const notasConteudo = await prisma.nota.findMany({
+        where: {
+          conteudo: { contains: lowerCaseTerm },
+        },
+      });
+  
+      // Combina os resultados das duas buscas, removendo duplicatas
+      const notas = [...notasTitulo, ...notasConteudo].filter(
+        (nota, index, self) =>
+          index === self.findIndex((n) => n.id === nota.id)
+      );
+  
       console.log("Notas encontradas:", notas);
       return notas;
     } catch (error) {
@@ -48,7 +64,7 @@ class NotaModel {
         where: { id },
         data,
       });
-  
+
       return notaAtualizada;
     } catch (error) {
       console.log("Erro ao atualizar nota", error);
