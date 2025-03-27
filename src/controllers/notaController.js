@@ -34,40 +34,39 @@ class NotaController {
   };
 
   create = async (req, res) => {
-    const { titulo, conteudo, cor, favorita } = req.body;
-
+    const { titulo, conteudo, cor, favorita, tags } = req.body;
+  
     try {
+      // Validação dos campos obrigatórios
       if (!titulo || !conteudo || !cor || favorita === undefined) {
         return res.status(400).json({
           erro: "Os campos 'titulo', 'conteudo', 'cor' e 'favorita' são obrigatórios.",
         });
       }
-
+  
+      // Validação de tipos
       if (typeof titulo !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'titulo' deve ser uma string." });
+        return res.status(400).json({ erro: "O campo 'titulo' deve ser uma string." });
       }
-
+  
       if (typeof conteudo !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'conteudo' deve ser uma string." });
+        return res.status(400).json({ erro: "O campo 'conteudo' deve ser uma string." });
       }
-
+  
       if (typeof cor !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'cor' deve ser uma string." });
+        return res.status(400).json({ erro: "O campo 'cor' deve ser uma string." });
       }
-
+  
       if (typeof favorita !== "boolean") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'favorita' deve ser um booleano." });
+        return res.status(400).json({ erro: "O campo 'favorita' deve ser um booleano." });
       }
-
-      const novaNota = await notaModel.create(titulo, conteudo, cor, favorita);
+  
+      if (!Array.isArray(tags) || !tags.every(tag => typeof tag === "string")) {
+        return res.status(400).json({ erro: "O campo 'tags' deve ser um array de strings." });
+      }
+  
+      // Criação da nota
+      const novaNota = await notaModel.create(titulo, conteudo, cor, favorita, tags);
       res.status(201).json(novaNota);
     } catch (error) {
       console.error(error);

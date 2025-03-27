@@ -3,48 +3,57 @@ import notaController from "../controllers/notaController.js";
 
 class NotaModel {
   getAll = async () => {
-    return await prisma.nota.findMany();
+    const notas = await prisma.nota.findMany();
+    return notas.map(nota => ({
+      ...nota,
+      tags: nota.tags ? nota.tags.split(",") : [], // Converte a string de volta para um array
+    }));
   };
 
   getById = async (id) => {
-    return await prisma.nota.findUnique({
+    const nota = await prisma.nota.findUnique({
       where: { id },
     });
+    return nota ? { ...nota, tags: nota.tags ? nota.tags.split(",") : [] } : null;
   };
 
-  create = async (titulo, conteudo, cor, favorita) => {
-    return await prisma.nota.create({
-      data: {
-        titulo,
-        conteudo,
-        cor,
-        favorita,
-      },
-    });
+  create = async (titulo, conteudo, cor, favorita, tags) => {
+    try {
+      console.log("Dados recebidos no model:", { titulo, conteudo, cor, favorita, tags });
+      const nota = await prisma.nota.create({
+        data: {
+          titulo,
+          conteudo,
+          cor,
+          favorita,
+          tags: tags ? tags.join(",") : null, // Converte o array em uma string separada por vírgulas
+        },
+      });
+      return nota;
+    } catch (error) {
+      console.error("Erro ao criar a nota no model:", error);
+      throw error;
+    }
   };
 
   searchByTerm = async (term) => {
     try {
       console.log("Termo recebido no model:", term);
   
-      // Converte o termo para minúsculas
       const lowerCaseTerm = term.toLowerCase();
   
-      // Busca no campo 'titulo'
       const notasTitulo = await prisma.nota.findMany({
         where: {
           titulo: { contains: lowerCaseTerm },
         },
       });
   
-      // Busca no campo 'conteudo'
       const notasConteudo = await prisma.nota.findMany({
         where: {
           conteudo: { contains: lowerCaseTerm },
         },
       });
   
-      // Combina os resultados das duas buscas, removendo duplicatas
       const notas = [...notasTitulo, ...notasConteudo].filter(
         (nota, index, self) =>
           index === self.findIndex((n) => n.id === nota.id)
