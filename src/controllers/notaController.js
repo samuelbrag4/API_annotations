@@ -10,6 +10,30 @@ class NotaController {
     }
   };
 
+  getById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      
+      if (isNaN(Number(id))) {
+        return res.status(400).json({ erro: "O ID deve ser um número válido." });
+      }
+
+      const nota = await notaModel.getById(Number(id));
+
+      if (!nota) {
+        return res.status(404).json({ erro: "Tarefa não encontrada" }); 
+      }
+
+      res.json(nota);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ erro: "Erro ao Buscar a Nota pelo Id" });
+    }
+
+
+  }
+
   create = async (req, res) => {
     const { titulo, conteudo, cor, favorita } = req.body;
   
