@@ -1,4 +1,4 @@
-import prisma  from "../../prisma/client.js";
+import prisma from "../../prisma/client.js";
 import notaController from "../controllers/notaController.js";
 
 class NotaModel {
@@ -23,19 +23,35 @@ class NotaModel {
     });
   };
 
-  update = async (id, concluida, descricao) => {
+  searchByTerm = async (term) => {
     try {
-      const nota = await prisma.nota.update({
-        where: { id },
-        data: {
-          concluida: concluida !== undefined ? concluida : true,
-          descricao, 
+      console.log("Termo recebido no model:", term);
+      const notas = await prisma.nota.findMany({
+        where: {
+          OR: [
+            { titulo: { contains: term, mode: "insensitive" } },
+            { conteudo: { contains: term, mode: "insensitive" } },
+          ],
         },
       });
-
-      return nota; 
+      console.log("Notas encontradas:", notas);
+      return notas;
     } catch (error) {
-      console.log("Error", error);
+      console.error("Erro ao buscar notas por termo:", error);
+      throw error;
+    }
+  };
+
+  update = async (id, data) => {
+    try {
+      const notaAtualizada = await prisma.nota.update({
+        where: { id },
+        data,
+      });
+  
+      return notaAtualizada;
+    } catch (error) {
+      console.log("Erro ao atualizar nota", error);
       throw error;
     }
   };
@@ -46,7 +62,7 @@ class NotaModel {
         where: { id },
       });
 
-      return notaDeletada
+      return notaDeletada;
     } catch (error) {
       console.log("Num quero deletar vacilão!", error);
       throw error;

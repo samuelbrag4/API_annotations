@@ -70,23 +70,17 @@ class NotaController {
 
   searchByTerm = async (req, res) => {
     const { term } = req.params;
-
+  
+    console.log("Termo recebido:", term); // Adicione este log para depuração
+  
     if (!term || term.trim() === "") {
       return res
         .status(400)
         .json({ erro: "O termo de busca não pode estar vazio." });
     }
-
+  
     try {
-      const notas = await prisma.nota.findMany({
-        where: {
-          OR: [
-            { titulo: { contains: term, mode: "insensitive" } },
-            { conteudo: { contains: term, mode: "insensitive" } },
-          ],
-        },
-      });
-
+      const notas = await notaModel.searchByTerm(term);
       res.json(notas);
     } catch (error) {
       console.error(error);
@@ -97,50 +91,31 @@ class NotaController {
   update = async (req, res) => {
     const { id } = req.params;
     const { titulo, conteudo, cor, favorita } = req.body;
-
+  
     try {
-      const notaAtualizada = await notaModel.update(
-        Number(id),
-        titulo,
-        conteudo,
-        cor,
-        favorita
-      );
-
-      if (!titulo && !conteudo && !cor && favorita === undefined) {
-        return res.status(400).json({
-          erro: "Pelo menos um dos campos 'titulo', 'conteudo', 'cor' ou 'favorita' deve ser enviado para atualização.",
-        });
+      // Valida se o ID é um número
+      if (isNaN(Number(id))) {
+        return res.status(400).json({ erro: "O ID deve ser um número válido." });
       }
-
-      if (titulo && typeof titulo !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'titulo' deve ser uma string." });
+  
+      // Cria o objeto de atualização com os campos fornecidos
+      const data = {};
+      if (titulo !== undefined) data.titulo = titulo;
+      if (conteudo !== undefined) data.conteudo = conteudo;
+      if (cor !== undefined) data.cor = cor;
+      if (favorita !== undefined) data.favorita = favorita;
+  
+      // Atualiza a nota
+      const notaAtualizada = await notaModel.update(Number(id), data);
+  
+      if (!notaAtualizada) {
+        return res.status(404).json({ erro: "Nota não encontrada." });
       }
-
-      if (conteudo && typeof conteudo !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'conteudo' deve ser uma string." });
-      }
-
-      if (cor && typeof cor !== "string") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'cor' deve ser uma string." });
-      }
-
-      if (favorita !== undefined && typeof favorita !== "boolean") {
-        return res
-          .status(400)
-          .json({ erro: "O campo 'favorita' deve ser um booleano." });
-      }
-
+  
       res.json(notaAtualizada);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ erro: "Filhote, não deu pra atualizar." });
+      res.status(500).json({ erro: "Erro ao atualizar a nota." });
     }
   };
 
